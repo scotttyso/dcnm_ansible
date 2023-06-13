@@ -1,0 +1,37 @@
+all:
+  vars:
+    ansible_command_timeout: 1000
+    ansible_connect_timeout: 1000
+    ansible_httpapi_validate_certs: false
+    ansible_httpapi_use_ssl: true
+    ansible_password: "1vtG@lw@y"
+    ansible_python_interpreter: python
+    ansible_user: "admin"
+    vpc_interfaces:
+      - vpc_id: 17
+        allowed_vlans: "all"
+        sw1_description: blah blah
+        sw1_intfs:
+          - Eth1/7
+        sw2_description: blah blah
+        sw2_intfs:
+          - Eth1/7
+        switches:
+          - leaf1
+          - leaf2
+      - vpc_id: 18
+        allowed_vlans: all
+        sw1_description: blah blah
+        sw1_intfs:
+          - Eth1/8
+        sw2_description: blah blah
+        sw2_intfs:
+          - Eth1/8
+        switches:
+          - leaf1
+          - leaf2
+  children:
+    ndfc_controllers:
+      hosts:
+        10.10.20.60:
+           ansible_network_os: cisco.dcnm.dcnm

@@ -1,0 +1,32 @@
+---
+- hosts: ndfc_controllers
+  gather_facts: false
+  collections:
+    - cisco.dcnm
+  connection: httpapi
+  tasks:
+    - name: Create vPC interfaces
+      loop: "{{ vpc_interfaces }}"
+      cisco.dcnm.dcnm_interface: &vpc_merge
+        fabric: DevNet_Fabric
+        state: merged                                       # only choose from [merged, replaced, deleted, overridden, query]
+        config:
+          - name: "vpc{{item.vpc_id}}"                      # should be of the form vpc<port-id>
+            type: vpc                                       # choose from this list [pc, vpc, sub_int, lo, eth]
+            switch:  "{{ item.switches }}"                  # provide switches of vPC pair
+            deploy: true                                    # choose from [true, false]
+            profile:
+              admin_state: true                             # choose from [true, false]
+              mode: trunk                                   # choose from [trunk, access]
+              peer1_pcid: "{{ item.vpc_id }}"               # choose between [Min:1, Max:4096], if not given, will be VPC port-id
+              peer2_pcid: "{{ item.vpc_id }}"               # choose between [Min:1, Max:4096], if not given, will be VPC port-id
+              peer1_members: "{{ item.sw1_intfs }}"         # member interfaces on peer 1
+              peer2_members: "{{ item.sw2_intfs }}"         # member interfaces on peer 2
+              pc_mode: active                               # choose from ['on', 'active', 'passive']
+              bpdu_guard: true                              # choose from [true, false, 'no']
+              port_type_fast: true                          # choose from [true, false]
+              mtu: jumbo                                    # choose from [default, jumbo]
+              peer1_allowed_vlans: "{{ item.allowed_vlans }}" # choose from [none, all, vlan range]
+              peer2_allowed_vlans: "{{ item.allowed_vlans }}" # choose from [none, all, vlan range]
+              peer1_description: "{{ item.sw1_description }}"
+              peer2_description: "{{ item.sw2_description }}"
